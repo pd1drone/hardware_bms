@@ -40,6 +40,16 @@ void handleRoomAction(AsyncWebServerRequest *request, int roomNumber, bool isOn)
   request->send(response);
 }
 
+void handleAllRoomsAction(AsyncWebServerRequest *request, bool isOn) {
+  String message = isOn ? "all on" : "all off";
+  Serial.println(message);
+
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", index_html);
+  response->addHeader("Access-Control-Allow-Origin", "*");
+  response->addHeader("Access-Control-Allow-Methods", "GET");
+  request->send(response);
+}
+
 void setup() {
   Serial.begin(9600);
   WiFi.softAP(ssid, password);
@@ -150,166 +160,13 @@ void setup() {
     handleRoomAction(request, 10, false);  // Call handleRoomAction for Room 10 OFF
   });
 
-  server.on("/11on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 11, true);  // Call handleRoomAction for Room 11 ON
+  server.on("/allon", HTTP_GET, [](AsyncWebServerRequest *request) {
+    handleAllRoomsAction(request, true);  // Handle all rooms ON
   });
 
-  server.on("/11off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 11, false);  // Call handleRoomAction for Room 11 OFF
+  server.on("/alloff", HTTP_GET, [](AsyncWebServerRequest *request) {
+    handleAllRoomsAction(request, false);  // Handle all rooms OFF
   });
-
-  server.on("/12on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 12, true);  // Call handleRoomAction for Room 12 ON
-  });
-
-  server.on("/12off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 12, false);  // Call handleRoomAction for Room 12 OFF
-  });
-
-  server.on("/13on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 13, true);  // Call handleRoomAction for Room 13 ON
-  });
-
-  server.on("/13off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 13, false);  // Call handleRoomAction for Room 13 OFF
-  });
-
-  server.on("/14on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 14, true);  // Call handleRoomAction for Room 14 ON
-  });
-
-  server.on("/14off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 14, false);  // Call handleRoomAction for Room 14 OFF
-  });
-
-  server.on("/15on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 15, true);  // Call handleRoomAction for Room 15 ON
-  });
-
-  server.on("/15off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 15, false);  // Call handleRoomAction for Room 15 OFF
-  });
-
-  server.on("/16on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 16, true);  // Call handleRoomAction for Room 16 ON
-  });
-
-  server.on("/16off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 16, false);  // Call handleRoomAction for Room 16 OFF
-  });
-
-  server.on("/17on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 17, true);  // Call handleRoomAction for Room 17 ON
-  });
-
-  server.on("/17off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 17, false);  // Call handleRoomAction for Room 17 OFF
-  });
-
-  server.on("/18on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 18, true);  // Call handleRoomAction for Room 18 ON
-  });
-
-  server.on("/18off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 18, false);  // Call handleRoomAction for Room 18 OFF
-  });
-
-  server.on("/19on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 19, true);  // Call handleRoomAction for Room 19 ON
-  });
-
-  server.on("/19off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 19, false);  // Call handleRoomAction for Room 19 OFF
-  });
-
-  server.on("/20on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 20, true);  // Call handleRoomAction for Room 20 ON
-  });
-
-  server.on("/20off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 20, false);  // Call handleRoomAction for Room 20 OFF
-  });
-
-  server.on("/21on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 21, true);  // Call handleRoomAction for Room 21 ON
-  });
-
-  server.on("/21off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 21, false);  // Call handleRoomAction for Room 21 OFF
-  });
-
-  server.on("/22on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 22, true);  // Call handleRoomAction for Room 22 ON
-  });
-
-  server.on("/22off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 22, false);  // Call handleRoomAction for Room 22 OFF
-  });
-
-  server.on("/23on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 23, true);  // Call handleRoomAction for Room 23 ON
-  });
-
-  server.on("/23off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 23, false);  // Call handleRoomAction for Room 23 OFF
-  });
-
-  server.on("/24on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 24, true);  // Call handleRoomAction for Room 24 ON
-  });
-
-  server.on("/24off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 24, false);  // Call handleRoomAction for Room 24 OFF
-  });
-
-  server.on("/25on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 25, true);  // Call handleRoomAction for Room 25 ON
-  });
-
-  server.on("/25off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 25, false);  // Call handleRoomAction for Room 25 OFF
-  });
-
-  server.on("/26on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 26, true);  // Call handleRoomAction for Room 26 ON
-  });
-
-  server.on("/26off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 26, false);  // Call handleRoomAction for Room 26 OFF
-  });
-
-  server.on("/27on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 27, true);  // Call handleRoomAction for Room 27 ON
-  });
-
-  server.on("/27off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 27, false);  // Call handleRoomAction for Room 27 OFF
-  });
-
-  server.on("/28on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 28, true);  // Call handleRoomAction for Room 28 ON
-  });
-
-  server.on("/28off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 28, false);  // Call handleRoomAction for Room 28 OFF
-  });
-
-  server.on("/29on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 29, true);  // Call handleRoomAction for Room 29 ON
-  });
-
-  server.on("/29off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 29, false);  // Call handleRoomAction for Room 29 OFF
-  });
-
-  server.on("/30on", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 30, true);  // Call handleRoomAction for Room 30 ON
-  });
-
-  server.on("/30off", HTTP_GET, [](AsyncWebServerRequest *request) {
-    handleRoomAction(request, 30, false);  // Call handleRoomAction for Room 30 OFF
-  });
-
 
   server.begin();
 }

@@ -28,28 +28,10 @@ const int Room10Toggle = 31;
 const int MasterToggle = 32;
 
 // Variables to store LED states
-int Room1LEDState = LOW;
-int Room2LEDState = LOW;
-int Room3LEDState = LOW;
-int Room4LEDState = LOW;
-int Room5LEDState = LOW;
-int Room6LEDState = LOW;
-int Room7LEDState = LOW;
-int Room8LEDState = LOW;
-int Room9LEDState = LOW;
-int Room10LEDState = LOW;
+int RoomLEDStates[10] = {LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW};
 
 // Variables to store previous toggle switch states
-int Room1SwitchStatePrev = HIGH;
-int Room2SwitchStatePrev = HIGH;
-int Room3SwitchStatePrev = HIGH;
-int Room4SwitchStatePrev = HIGH;
-int Room5SwitchStatePrev = HIGH;
-int Room6SwitchStatePrev = HIGH;
-int Room7SwitchStatePrev = HIGH;
-int Room8SwitchStatePrev = HIGH;
-int Room9SwitchStatePrev = HIGH;
-int Room10SwitchStatePrev = HIGH;
+int RoomSwitchStatePrev[10] = {LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW};
 int MasterSwitchStatePrev = HIGH;
 
 void setup() {
@@ -85,166 +67,100 @@ void setup() {
 }
 
 void loop() {
-  // Handle commands from NodeMCU
+  // Request and handle commands from NodeMCU
   if (Serial1.available() > 0) {
-    String command = Serial1.readStringUntil('\n');
-    command.trim();
-    
-    if (command == "get") {
-      sendJSONResponse(); // Send JSON response when "get" command received
-    } else if (command == "all on") {
-      setAllLEDs(HIGH); // Turn all LEDs on
-    } else if (command == "all off") {
-      setAllLEDs(LOW); // Turn all LEDs off
-    } else {
-      handleSerialCommand(command); // Handle other commands
-    }
+    String responseFromNodeMCU = Serial1.readStringUntil('\n');
+    responseFromNodeMCU.trim();
+    Serial.println(responseFromNodeMCU);
+    // Process the received JSON
+    processJSONResponse(responseFromNodeMCU);
   }
 
-  // Update LEDs based on toggle switch state changes
-  updateLED(Room1Toggle, Room1SwitchStatePrev, Room1LED, Room1LEDState);
-  updateLED(Room2Toggle, Room2SwitchStatePrev, Room2LED, Room2LEDState);
-  updateLED(Room3Toggle, Room3SwitchStatePrev, Room3LED, Room3LEDState);
-  updateLED(Room4Toggle, Room4SwitchStatePrev, Room4LED, Room4LEDState);
-  updateLED(Room5Toggle, Room5SwitchStatePrev, Room5LED, Room5LEDState);
-  updateLED(Room6Toggle, Room6SwitchStatePrev, Room6LED, Room6LEDState);
-  updateLED(Room7Toggle, Room7SwitchStatePrev, Room7LED, Room7LEDState);
-  updateLED(Room8Toggle, Room8SwitchStatePrev, Room8LED, Room8LEDState);
-  updateLED(Room9Toggle, Room9SwitchStatePrev, Room9LED, Room9LEDState);
-  updateLED(Room10Toggle, Room10SwitchStatePrev, Room10LED, Room10LEDState);
+  // Update the state of each room based on the toggle switch
+  updateLED(Room1Toggle, RoomSwitchStatePrev[0], "Room1");
+  updateLED(Room2Toggle, RoomSwitchStatePrev[1], "Room2");
+  updateLED(Room3Toggle, RoomSwitchStatePrev[2], "Room3");
+  updateLED(Room4Toggle, RoomSwitchStatePrev[3], "Room4");
+  updateLED(Room5Toggle, RoomSwitchStatePrev[4], "Room5");
+  updateLED(Room6Toggle, RoomSwitchStatePrev[5], "Room6");
+  updateLED(Room7Toggle, RoomSwitchStatePrev[6], "Room7");
+  updateLED(Room8Toggle, RoomSwitchStatePrev[7], "Room8");
+  updateLED(Room9Toggle, RoomSwitchStatePrev[8], "Room9");
+  updateLED(Room10Toggle, RoomSwitchStatePrev[9], "Room10");
 
-  // Update all LEDs based on master toggle switch state
+  // Update the state of the master toggle switch
   updateMasterLEDs(MasterToggle, MasterSwitchStatePrev);
 }
 
-// Function to handle commands from NodeMCU
-void handleSerialCommand(String command) {
-  int roomNumber = command.substring(4, command.indexOf(' ')).toInt();
+// Function to process received JSON and control LEDs
+void processJSONResponse(String jsonString) {
+  StaticJsonBuffer<512> jsonBuffer;
+  JsonObject& jsonDocument = jsonBuffer.parseObject(jsonString);
 
-  // Extract action and convert to lowercase
-  String action = command.substring(command.indexOf(' ') + 1);
-  action.toLowerCase();
+  // Check if the JSON parsing was successful
+  if (!jsonDocument.success()) {
+    Serial.println("Failed to parse JSON");
+    return;
+  }
 
-  Serial.println(roomNumber);
-  Serial.println(action);
+  // Control each room's LED based on the received JSON
+  for (int i = 0; i < 10; i++) {
+    String roomKey = "Room" + String(i + 1);
 
-  if (roomNumber >= 1 && roomNumber <= 10) {
-    int ledPin = getLEDPin(roomNumber);
-    int& ledState = getLEDState(roomNumber);
-    
-    if (action == "on") {
-      ledState = HIGH;
-    } else if (action == "off") {
-      ledState = LOW;
+    // Check if the key exists in the JSON object
+    if (jsonDocument.containsKey(roomKey)) {
+      bool roomState = jsonDocument[roomKey];
+
+      // Map room number to corresponding LED pin
+      int ledPin;
+      switch (i) {
+        case 0: ledPin = Room1LED; break;
+        case 1: ledPin = Room2LED; break;
+        case 2: ledPin = Room3LED; break;
+        case 3: ledPin = Room4LED; break;
+        case 4: ledPin = Room5LED; break;
+        case 5: ledPin = Room6LED; break;
+        case 6: ledPin = Room7LED; break;
+        case 7: ledPin = Room8LED; break;
+        case 8: ledPin = Room9LED; break;
+        case 9: ledPin = Room10LED; break;
+      }
+
+      // Control the LED based on the state
+      RoomLEDStates[i] = roomState ? HIGH : LOW;
+      digitalWrite(ledPin, roomState ? HIGH : LOW); // LOW turns the LED on, HIGH turns it off
     }
-    
-    digitalWrite(ledPin, ledState);
-  }
-}
-
-// Function to get the LED pin for a given room number
-int getLEDPin(int roomNumber) {
-  switch (roomNumber) {
-    case 1: return Room1LED;
-    case 2: return Room2LED;
-    case 3: return Room3LED;
-    case 4: return Room4LED;
-    case 5: return Room5LED;
-    case 6: return Room6LED;
-    case 7: return Room7LED;
-    case 8: return Room8LED;
-    case 9: return Room9LED;
-    case 10: return Room10LED;
-    default: return -1; // Invalid room number
-  }
-}
-
-// Function to get the LED state for a given room number
-int& getLEDState(int roomNumber) {
-  switch (roomNumber) {
-    case 1: return Room1LEDState;
-    case 2: return Room2LEDState;
-    case 3: return Room3LEDState;
-    case 4: return Room4LEDState;
-    case 5: return Room5LEDState;
-    case 6: return Room6LEDState;
-    case 7: return Room7LEDState;
-    case 8: return Room8LEDState;
-    case 9: return Room9LEDState;
-    case 10: return Room10LEDState;
-    default: return Room1LEDState; // Default to Room1LEDState for invalid room number
   }
 }
 
 // Function to update LED state based on toggle switch state change
-void updateLED(int togglePin, int& prevSwitchState, int ledPin, int& ledState) {
+void updateLED(int togglePin, int& prevSwitchState, const String roomName) {
   int switchState = digitalRead(togglePin);
+
+  // Check if switch state has changed
   if (switchState == LOW && prevSwitchState == HIGH) {
-    ledState = HIGH;
-    digitalWrite(ledPin, ledState);
-    delay(50); // Debounce delay
+    // Switch turned ON
+    Serial1.println(roomName + " ON"); // Send ON message to NodeMCU
+  } else if (switchState == HIGH && prevSwitchState == LOW) {
+    // Switch turned OFF
+    Serial1.println(roomName + " OFF"); // Send OFF message to NodeMCU
   }
-  if (switchState == HIGH && prevSwitchState == LOW){
-    ledState = LOW;
-    digitalWrite(ledPin, ledState);
-    delay(50); // Debounce delay
-  }
-  
+
+  // Update previous switch state
   prevSwitchState = switchState;
 }
 
 // Function to update all LED states based on master toggle switch state change
 void updateMasterLEDs(int togglePin, int& prevSwitchState) {
   int switchState = digitalRead(togglePin);
+
+  // Update all LEDs if master switch is toggled
   if (switchState == LOW && prevSwitchState == HIGH) {
-    int newState = !Room1LEDState; // Toggle the state of all LEDs
-    setAllLEDs(newState);
-    delay(50); // Debounce delay
+    Serial1.println("all on"); // Send "all on" message to NodeMCU
+  } else if (switchState == HIGH && prevSwitchState == LOW) {
+    Serial1.println("all off"); // Send "all off" message to NodeMCU
   }
-  
+
+  // Update previous switch state
   prevSwitchState = switchState;
-}
-
-// Function to set the state of all LEDs
-void setAllLEDs(int state) {
-  Room1LEDState = state;
-  Room2LEDState = state;
-  Room3LEDState = state;
-  Room4LEDState = state;
-  Room5LEDState = state;
-  Room6LEDState = state;
-  Room7LEDState = state;
-  Room8LEDState = state;
-  Room9LEDState = state;
-  Room10LEDState = state;
-  
-  digitalWrite(Room1LED, Room1LEDState);
-  digitalWrite(Room2LED, Room2LEDState);
-  digitalWrite(Room3LED, Room3LEDState);
-  digitalWrite(Room4LED, Room4LEDState);
-  digitalWrite(Room5LED, Room5LEDState);
-  digitalWrite(Room6LED, Room6LEDState);
-  digitalWrite(Room7LED, Room7LEDState);
-  digitalWrite(Room8LED, Room8LEDState);
-  digitalWrite(Room9LED, Room9LEDState);
-  digitalWrite(Room10LED, Room10LEDState);
-}
-
-// Function to send JSON response
-void sendJSONResponse() {
-  StaticJsonDocument<512> jsonDocument;
-  
-  jsonDocument["room1"] = Room1LEDState;
-  jsonDocument["room2"] = Room2LEDState;
-  jsonDocument["room3"] = Room3LEDState;
-  jsonDocument["room4"] = Room4LEDState;
-  jsonDocument["room5"] = Room5LEDState;
-  jsonDocument["room6"] = Room6LEDState;
-  jsonDocument["room7"] = Room7LEDState;
-  jsonDocument["room8"] = Room8LEDState;
-  jsonDocument["room9"] = Room9LEDState;
-  jsonDocument["room10"] = Room10LEDState;
-
-  serializeJson(jsonDocument, Serial1);
-  Serial1.println();
 }

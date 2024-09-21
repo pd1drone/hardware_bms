@@ -2,10 +2,10 @@
 #include <FirebaseArduino.h>
 #include <ESP8266WiFi.h>
 
-#define FIREBASE_AUTH "sdasdasd" //Your Firebase Web API Key
-#define FIREBASE_HOST "asdasd" //Your Firebase URL
-#define WIFI_SSID "asdasdasd.4"     //Your WIFI SSID
-#define WIFI_PASSWORD "asdasdasdasd" //Your WIFI Password
+#define FIREBASE_AUTH "Ug0VVnHLdMDfZeLWn7GI5rbjBMSvsmzdSy3YmqvB" //Your Firebase Web API Key
+#define FIREBASE_HOST "iot-bms-f7f32-default-rtdb.asia-southeast1.firebasedatabase.app" //Your Firebase URL
+#define WIFI_SSID "GlobeAtHome_B6DC0_5"     //Your WIFI SSID
+#define WIFI_PASSWORD "ua4Z6wEY" //Your WIFI Password
 
 bool RoomLEDStates[10] = {false, false, false, false, false, false, false, false, false, false};
 

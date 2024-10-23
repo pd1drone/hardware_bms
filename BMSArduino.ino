@@ -28,11 +28,20 @@ const int Room10Toggle = 31;
 const int MasterToggle = 32;
 
 // Variables to store LED states
-int RoomLEDStates[10] = {LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW};
+bool RoomLEDStates[10] = {false, false, false, false, false, false, false, false, false, false};
 
 // Variables to store previous toggle switch states
-int RoomSwitchStatePrev[10] = {LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW};
 int MasterSwitchStatePrev = HIGH;
+int Room1SwitchStatePrev = HIGH;
+int Room2SwitchStatePrev = HIGH;
+int Room3SwitchStatePrev = HIGH;
+int Room4SwitchStatePrev = HIGH;
+int Room5SwitchStatePrev = HIGH;
+int Room6SwitchStatePrev = HIGH;
+int Room7SwitchStatePrev = HIGH;
+int Room8SwitchStatePrev = HIGH;
+int Room9SwitchStatePrev = HIGH;
+int Room10SwitchStatePrev = HIGH;
 
 void setup() {
   Serial.begin(9600);
@@ -77,19 +86,22 @@ void loop() {
   }
 
   // Update the state of each room based on the toggle switch
-  updateLED(Room1Toggle, RoomSwitchStatePrev[0], "Room1");
-  updateLED(Room2Toggle, RoomSwitchStatePrev[1], "Room2");
-  updateLED(Room3Toggle, RoomSwitchStatePrev[2], "Room3");
-  updateLED(Room4Toggle, RoomSwitchStatePrev[3], "Room4");
-  updateLED(Room5Toggle, RoomSwitchStatePrev[4], "Room5");
-  updateLED(Room6Toggle, RoomSwitchStatePrev[5], "Room6");
-  updateLED(Room7Toggle, RoomSwitchStatePrev[6], "Room7");
-  updateLED(Room8Toggle, RoomSwitchStatePrev[7], "Room8");
-  updateLED(Room9Toggle, RoomSwitchStatePrev[8], "Room9");
-  updateLED(Room10Toggle, RoomSwitchStatePrev[9], "Room10");
+  updateLED(Room1Toggle, Room1SwitchStatePrev, "Room1");
+  updateLED(Room2Toggle, Room2SwitchStatePrev, "Room2");
+  updateLED(Room3Toggle, Room3SwitchStatePrev, "Room3");
+  updateLED(Room4Toggle, Room4SwitchStatePrev, "Room4");
+  updateLED(Room5Toggle, Room5SwitchStatePrev, "Room5");
+  updateLED(Room6Toggle, Room6SwitchStatePrev, "Room6");
+  updateLED(Room7Toggle, Room7SwitchStatePrev, "Room7");
+  updateLED(Room8Toggle, Room8SwitchStatePrev, "Room8");
+  updateLED(Room9Toggle, Room9SwitchStatePrev, "Room9");
+  updateLED(Room10Toggle, Room10SwitchStatePrev, "Room10");
 
   // Update the state of the master toggle switch
   updateMasterLEDs(MasterToggle, MasterSwitchStatePrev);
+  
+  Serial.println("umabot dito!");
+  delay(50);
 }
 
 // Function to process received JSON and control LEDs
@@ -127,7 +139,7 @@ void processJSONResponse(String jsonString) {
       }
 
       // Control the LED based on the state
-      RoomLEDStates[i] = roomState ? HIGH : LOW;
+      RoomLEDStates[i] = roomState;
       digitalWrite(ledPin, roomState ? HIGH : LOW); // LOW turns the LED on, HIGH turns it off
     }
   }
@@ -136,13 +148,18 @@ void processJSONResponse(String jsonString) {
 // Function to update LED state based on toggle switch state change
 void updateLED(int togglePin, int& prevSwitchState, const String roomName) {
   int switchState = digitalRead(togglePin);
-
   // Check if switch state has changed
   if (switchState == LOW && prevSwitchState == HIGH) {
     // Switch turned ON
+  Serial.println(switchState);
+  Serial.println(prevSwitchState);
+    Serial.println(roomName + " ON");
     Serial1.println(roomName + " ON"); // Send ON message to NodeMCU
   } else if (switchState == HIGH && prevSwitchState == LOW) {
     // Switch turned OFF
+  Serial.println(switchState);
+  Serial.println(prevSwitchState);
+    Serial.println(roomName + " OFF");
     Serial1.println(roomName + " OFF"); // Send OFF message to NodeMCU
   }
 
@@ -153,11 +170,18 @@ void updateLED(int togglePin, int& prevSwitchState, const String roomName) {
 // Function to update all LED states based on master toggle switch state change
 void updateMasterLEDs(int togglePin, int& prevSwitchState) {
   int switchState = digitalRead(togglePin);
-
   // Update all LEDs if master switch is toggled
   if (switchState == LOW && prevSwitchState == HIGH) {
+    
+  Serial.println(switchState);
+  Serial.println(prevSwitchState);
+    Serial.println("all on");
     Serial1.println("all on"); // Send "all on" message to NodeMCU
   } else if (switchState == HIGH && prevSwitchState == LOW) {
+    
+  Serial.println(switchState);
+  Serial.println(prevSwitchState);
+    Serial.println("all off");
     Serial1.println("all off"); // Send "all off" message to NodeMCU
   }
 
